@@ -61,7 +61,7 @@ vim.cmd [[
 ]]
 
 -- ===============================
---  Smart autopairs
+--  Smart autopairs with Backspace deletion
 -- ===============================
 local autopairs = {
   ["{"] = "}",
@@ -89,6 +89,18 @@ for open, close in pairs(autopairs) do
     return open..close.."<Left>"
   end, { expr=true, noremap=true })
 end
+
+-- Backspace deletes pair
+vim.keymap.set("i", "<BS>", function()
+  local col = vim.fn.col(".")
+  local line = vim.fn.getline(".")
+  local prev_char = col > 1 and line:sub(col-1, col-1) or ""
+  local next_char = line:sub(col, col)
+  if autopairs[prev_char] == next_char then
+    return "<Del><BS>"
+  end
+  return "<BS>"
+end, {expr=true, noremap=true})
 
 -- ===============================
 --  Treesitter highlighting
@@ -124,9 +136,44 @@ if lspconfig_ok then
     "d_language_server" -- Dlang
   }
   for _, lsp in ipairs(servers) do
-    lspconfig[lsp].setup{}
+    lspconfig[_].setup{}
   end
 end
+
+-- Autoformat on save
+vim.cmd [[
+  augroup FormatOnSave
+    autocmd!
+    autocmd BufWritePre * lua vim.lsp.buf.format({ async = false })
+  augroup END
+]]
+
+-- ===============================
+--  Highlight TODO/FIXME/NOTE
+-- ===============================
+vim.cmd [[
+  syntax match TodoComment /\v<(TODO|FIXME|NOTE):?/
+  highlight TodoComment guifg=#e5c07b ctermfg=Yellow gui=bold
+]]
+
+-- ===============================
+--  Mini-outline: current function/class in statusline
+-- ===============================
+_G.current_function = function()
+  local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
+  if not ok then return "" end
+  local node = ts_utils.get_node_at_cursor()
+  while node do
+    local type = node:type()
+    if type == "function_definition" or type == "function_declaration" or type == "class_definition" then
+      return ts_utils.get_node_text(node)[1] or ""
+    end
+    node = node:parent()
+  end
+  return ""
+end
+
+vim.o.statusline = "%f %h%m%r %{v:lua.current_function()} %=%-14.(%l,%c%V%) %P"
 
 -- ===============================
 --  Simple color scheme
