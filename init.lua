@@ -149,12 +149,22 @@ vim.cmd [[
 ]]
 
 -- ===============================
---  Highlight TODO/FIXME/NOTE
+-- Highlight TODO/FIXME/NOTE in comments
 -- ===============================
 vim.cmd [[
-  syntax match TodoComment /\v<(TODO|FIXME|NOTE):?/
+  " TODO: yellow
+  syntax match TodoComment /\v<TODO:?.*/ containedin=.*Comment
   highlight TodoComment guifg=#e5c07b ctermfg=Yellow gui=bold
+
+  " FIXME: red
+  syntax match FixmeComment /\v<FIXME:?.*/ containedin=.*Comment
+  highlight FixmeComment guifg=#e06c75 ctermfg=Red gui=bold
+
+  " NOTE: green
+  syntax match NoteComment /\v<NOTE:?.*/ containedin=.*Comment
+  highlight NoteComment guifg=#98c379 ctermfg=Green gui=bold
 ]]
+
 
 -- ===============================
 --  Mini-outline: current function/class in statusline
