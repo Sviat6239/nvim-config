@@ -1,31 +1,26 @@
-# AutoPairs+ Syntax Highlighting Plugin
+# Neovim Monolithic Config
 
-A minimal Neovim plugin written in Lua that provides:
-- Auto-closing of brackets, braces, parentheses, quotes, and backticks.
-- Nested pair insertion (like in modern IDEs).
-- Syntax highlighting for multiple languages (JS, TS, D, C, Python, Lua, FASM, NASM).
+A single-file Neovim configuration (`init.lua`) with:
+- Smart auto-pair insertion  
+- Syntax highlighting for multiple languages  
+- No external dependencies  
 
 ## Features
 
-- Automatically inserts the matching closing symbol for `{`, `[`, `(`, `"`, `'`, `<`, and `` ` ``.
-- Supports multiple levels of nested pairs (pressing the key again adds another full pair).
-- Includes syntax highlighting configuration for:
+- Auto-inserts matching pairs for `{`, `[`, `(`, `"`, `'`, `<`, and `` ` ``  
+- Nested pair expansion — pressing the same key again adds another full pair  
+- Built-in syntax highlighting for:
   - JavaScript / TypeScript  
-  - Dlang  
-  - C / C++  
+  - D / C / C++  
   - Python  
   - Lua  
-  - FASM / NASM assembly
+  - FASM / NASM  
+- Fully monolithic — no separate plugin files or mappings  
 
-## Installation
+## Usage
 
-Use your favorite plugin manager.
+Just place the provided `init.lua` into your Neovim config directory:
 
-### Example (with `lazy.nvim`)
-```lua
-{
-  "user/auto-pairs-syntax",
-  config = function()
-    require("auto_pairs_syntax").setup()
-  end
-}
+**Linux / macOS:**
+```bash
+~/.config/nvim/init.lua
