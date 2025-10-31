@@ -1,5 +1,5 @@
 -- ===============================
---  Smart minimal Neovim config 
+--  Smart Neovim config 
 -- ===============================
 
 -- Basic options
@@ -15,43 +15,8 @@ vim.o.mouse = "a"
 vim.cmd("syntax on")
 
 -- ===============================
---  Smart auto pairs
+--  Rainbow brackets colors
 -- ===============================
-local autopairs = {
-  ["{"] = "}",
-  ["["] = "]",
-  ["("] = ")",
-  ["'"] = "'",
-  ['"'] = '"',
-  ["`"] = "`",
-  ["<"] = ">"
-}
-
-for open, close in pairs(autopairs) do
-  vim.keymap.set("i", open, function()
-    local line = vim.fn.getline(".")
-    local col = vim.fn.col(".")
-    local prev_char = col > 1 and line:sub(col - 1, col - 1) or ""
-    local next_char = line:sub(col, col)
-
-    -- if cursor is inside pair -> insert nested pair
-    if next_char == close then
-      return open .. close .. "<Left>"
-    end
-
-    -- if same opener before, stack pairs like IDEs
-    if prev_char == open then
-      return open .. close .. "<Left>"
-    end
-
-    return open .. close .. "<Left>"
-  end, { expr = true, noremap = true })
-end
-
--- ===============================
---  Rainbow brackets
--- ===============================
--- 8 colors
 local colors = {
   "#e06c75", "#d19a66", "#e5c07b", "#98c379",
   "#56b6c2", "#61afef", "#c678dd", "#be5046"
@@ -61,9 +26,12 @@ for i, color in ipairs(colors) do
   vim.cmd(string.format("highlight Rainbow%d guifg=%s", i, color))
 end
 
+-- Highlight current line brighter
+vim.cmd("highlight CursorLine guibg=#2c2c2c ctermbg=238")
+
 local brackets = {"(", "[", "{"}
 
--- make function global so autocmd can see it
+-- Global function for rainbow brackets
 _G.rainbow_brackets = function()
   local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
@@ -85,7 +53,6 @@ _G.rainbow_brackets = function()
   end
 end
 
--- autocmd to update rainbow brackets
 vim.cmd [[
   augroup RainbowBrackets
     autocmd!
@@ -94,12 +61,79 @@ vim.cmd [[
 ]]
 
 -- ===============================
+--  Smart autopairs
+-- ===============================
+local autopairs = {
+  ["{"] = "}",
+  ["["] = "]",
+  ["("] = ")",
+  ["'"] = "'",
+  ['"'] = '"',
+  ["`"] = "`",
+  ["<"] = ">"
+}
+
+for open, close in pairs(autopairs) do
+  vim.keymap.set("i", open, function()
+    local line = vim.fn.getline(".")
+    local col = vim.fn.col(".")
+    local prev_char = col > 1 and line:sub(col-1,col-1) or ""
+    local next_char = line:sub(col,col)
+
+    if next_char == close then
+      return open..close.."<Left>"
+    end
+    if prev_char == open then
+      return open..close.."<Left>"
+    end
+    return open..close.."<Left>"
+  end, { expr=true, noremap=true })
+end
+
+-- ===============================
+--  Treesitter highlighting
+-- ===============================
+local ok, ts = pcall(require, "nvim-treesitter.configs")
+if ok then
+  ts.setup {
+    ensure_installed = {
+      "javascript", "typescript",
+      "c", "python", "lua",
+      "d", "nasm", "fasm",
+      "html", "css", "bash"
+    },
+    highlight = { enable = true },
+  }
+else
+  vim.cmd("syntax enable")
+end
+
+-- ===============================
+--  LSP setup
+-- ===============================
+local lspconfig_ok, lspconfig = pcall(require, "lspconfig")
+if lspconfig_ok then
+  local servers = {
+    "pyright",       -- Python
+    "clangd",        -- C/C++
+    "tsserver",      -- JS/TS
+    "html",          -- HTML
+    "cssls",         -- CSS
+    "bashls",        -- Bash
+    "lua_ls",        -- Lua
+    "d_language_server" -- Dlang
+  }
+  for _, lsp in ipairs(servers) do
+    lspconfig[lsp].setup{}
+  end
+end
+
+-- ===============================
 --  Simple color scheme
 -- ===============================
 vim.cmd [[
   hi Normal guibg=NONE ctermbg=NONE
-  hi CursorLine cterm=bold guibg=#1f1f1f
-  hi Comment ctermfg=DarkGray guifg=#606060
+  hi Comment guifg=#606060 ctermfg=DarkGray
   hi String guifg=#98c379
   hi Function guifg=#61afef
   hi Keyword guifg=#c678dd
