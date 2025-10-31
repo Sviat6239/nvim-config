@@ -25,6 +25,8 @@ A single-file Neovim configuration (`init.lua`) with:
   - Lua  
   - FASM / NASM  
   - HTML / CSS / Bash  
+  - Java / C#  
+  - Go / Rust / PHP  
 - **LSP support** for real-time error checking, autocompletion, and formatting:
   - Python (`pyright`)  
   - C / C++ (`clangd`)  
@@ -34,6 +36,11 @@ A single-file Neovim configuration (`init.lua`) with:
   - Bash (`bashls`)  
   - Lua (`lua_ls`)  
   - D (`d_language_server`, if installed)  
+  - Rust (`rust_analyzer`)  
+  - Go (`gopls`)  
+  - PHP (`intelephense`)  
+  - C# (`omnisharp`)  
+  - Java (`jdtls`)  
 - **Autoformat on save** for all supported languages  
 - **Highlight TODO/FIXME/NOTE** comments with bright colors  
 - **Mini-outline** in statusline showing current function or class  
