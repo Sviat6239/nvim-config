@@ -1,5 +1,5 @@
 -- ===============================
---  Smart Neovim config 
+--  Smart Neovim config
 -- ===============================
 
 -- Basic options
@@ -15,23 +15,20 @@ vim.o.mouse = "a"
 vim.cmd("syntax on")
 
 -- ===============================
---  Rainbow brackets colors
+--  Rainbow brackets
 -- ===============================
 local colors = {
   "#e06c75", "#d19a66", "#e5c07b", "#98c379",
   "#56b6c2", "#61afef", "#c678dd", "#be5046"
 }
-
 for i, color in ipairs(colors) do
   vim.cmd(string.format("highlight Rainbow%d guifg=%s", i, color))
 end
 
--- Highlight current line brighter
 vim.cmd("highlight CursorLine guibg=#2c2c2c ctermbg=238")
+vim.cmd("highlight CursorLineNr guifg=#e5c07b ctermfg=Yellow gui=bold")
 
 local brackets = {"(", "[", "{"}
-
--- Global function for rainbow brackets
 _G.rainbow_brackets = function()
   local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
@@ -61,7 +58,7 @@ vim.cmd [[
 ]]
 
 -- ===============================
---  Smart autopairs with Backspace deletion
+--  Smart autopairs with Backspace
 -- ===============================
 local autopairs = {
   ["{"] = "}",
@@ -90,7 +87,6 @@ for open, close in pairs(autopairs) do
   end, { expr=true, noremap=true })
 end
 
--- Backspace deletes pair
 vim.keymap.set("i", "<BS>", function()
   local col = vim.fn.col(".")
   local line = vim.fn.getline(".")
@@ -109,10 +105,9 @@ local ok, ts = pcall(require, "nvim-treesitter.configs")
 if ok then
   ts.setup {
     ensure_installed = {
-      "javascript", "typescript",
-      "c", "python", "lua",
-      "d", "nasm", "fasm",
-      "html", "css", "bash"
+      "javascript", "typescript", "c", "cpp", "python", "lua", "d",
+      "nasm", "fasm", "html", "css", "bash",
+      "rust", "go", "php", "c_sharp", "java"
     },
     highlight = { enable = true },
   }
@@ -126,17 +121,16 @@ end
 local lspconfig_ok, lspconfig = pcall(require, "lspconfig")
 if lspconfig_ok then
   local servers = {
-    "pyright",       -- Python
-    "clangd",        -- C/C++
-    "tsserver",      -- JS/TS
-    "html",          -- HTML
-    "cssls",         -- CSS
-    "bashls",        -- Bash
-    "lua_ls",        -- Lua
-    "d_language_server" -- Dlang
+    "pyright", "clangd", "tsserver",
+    "html", "cssls", "bashls",
+    "lua_ls", "d_language_server",
+    "rust_analyzer", "gopls", "intelephense",
+    "omnisharp", "jdtls"
   }
   for _, lsp in ipairs(servers) do
-    lspconfig[_].setup{}
+    if lspconfig[_] then
+      lspconfig[_].setup{}
+    end
   end
 end
 
@@ -149,25 +143,21 @@ vim.cmd [[
 ]]
 
 -- ===============================
--- Highlight TODO/FIXME/NOTE in comments
+-- Highlight TODO/FIXME/NOTE
 -- ===============================
 vim.cmd [[
-  " TODO: yellow
   syntax match TodoComment /\v<TODO:?.*/ containedin=.*Comment
   highlight TodoComment guifg=#e5c07b ctermfg=Yellow gui=bold
 
-  " FIXME: red
   syntax match FixmeComment /\v<FIXME:?.*/ containedin=.*Comment
   highlight FixmeComment guifg=#e06c75 ctermfg=Red gui=bold
 
-  " NOTE: green
   syntax match NoteComment /\v<NOTE:?.*/ containedin=.*Comment
   highlight NoteComment guifg=#98c379 ctermfg=Green gui=bold
 ]]
 
-
 -- ===============================
---  Mini-outline: current function/class in statusline
+-- Mini-outline: current function/class
 -- ===============================
 _G.current_function = function()
   local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
@@ -183,10 +173,21 @@ _G.current_function = function()
   return ""
 end
 
-vim.o.statusline = "%f %h%m%r %{v:lua.current_function()} %=%-14.(%l,%c%V%) %P"
+vim.o.statusline = "%f %h%m%r %{'%#StatusLineFunction#'..v:lua.current_function()} %=%-14.(%l,%c%V%) %P"
+vim.cmd("highlight StatusLineFunction guifg=#61afef gui=bold")
 
 -- ===============================
---  Simple color scheme
+-- Color column / ruler
+-- ===============================
+vim.o.colorcolumn = "80,100,120"
+vim.cmd [[
+  highlight ColorColumn1 guibg=#3e3e3e ctermbg=238
+  highlight ColorColumn2 guibg=#4e4e4e ctermbg=239
+  highlight ColorColumn3 guibg=#5e5e5e ctermbg=240
+]]
+
+-- ===============================
+-- Simple color scheme
 -- ===============================
 vim.cmd [[
   hi Normal guibg=NONE ctermbg=NONE
