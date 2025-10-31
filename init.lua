@@ -1,5 +1,5 @@
 -- ===============================
---  Minimal Neovim Config 
+--  Smart minimal Neovim config
 -- ===============================
 
 -- Basic options
@@ -15,7 +15,7 @@ vim.o.mouse = "a"
 vim.cmd("syntax on")
 
 -- ===============================
---  Auto pairs for brackets/quotes
+--  Smart auto pairs
 -- ===============================
 local autopairs = {
   ["{"] = "}",
@@ -29,10 +29,21 @@ local autopairs = {
 
 for open, close in pairs(autopairs) do
   vim.keymap.set("i", open, function()
-    local next_char = vim.fn.strpart(vim.fn.getline('.'), vim.fn.col('.') - 1, 1)
+    local line = vim.fn.getline(".")
+    local col = vim.fn.col(".")
+    local prev_char = col > 1 and line:sub(col - 1, col - 1) or ""
+    local next_char = line:sub(col, col)
+
+    -- if cursor is inside pair -> insert nested pair
     if next_char == close then
-      return open
+      return open .. close .. "<Left>"
     end
+
+    -- if same opener before, stack pairs like IDEs
+    if prev_char == open then
+      return open .. close .. "<Left>"
+    end
+
     return open .. close .. "<Left>"
   end, { expr = true, noremap = true })
 end
@@ -66,5 +77,4 @@ vim.cmd [[
   hi Keyword guifg=#c678dd
 ]]
 
-print("Neovim minimal config loaded ✅")
-
+print("Smart Neovim config loaded ✅")
