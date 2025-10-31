@@ -11,6 +11,8 @@ vim.o.tabstop = 2
 vim.o.smartindent = true
 vim.o.termguicolors = true
 vim.o.cursorline = true
+vim.o.showmatch = true
+vim.o.matchtime = 2 
 vim.o.mouse = "a"
 vim.cmd("syntax on")
 
