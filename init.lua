@@ -1,5 +1,5 @@
 -- ===============================
---  Smart minimal Neovim config
+--  Smart minimal Neovim config 
 -- ===============================
 
 -- Basic options
@@ -49,21 +49,49 @@ for open, close in pairs(autopairs) do
 end
 
 -- ===============================
---  Syntax highlighting
+--  Rainbow brackets
 -- ===============================
-local ok, ts = pcall(require, "nvim-treesitter.configs")
-if ok then
-  ts.setup {
-    ensure_installed = {
-      "javascript", "typescript",
-      "c", "python", "lua",
-      "d", "nasm", "fasm"
-    },
-    highlight = { enable = true },
-  }
-else
-  vim.cmd("syntax enable")
+-- 8 colors
+local colors = {
+  "#e06c75", "#d19a66", "#e5c07b", "#98c379",
+  "#56b6c2", "#61afef", "#c678dd", "#be5046"
+}
+
+for i, color in ipairs(colors) do
+  vim.cmd(string.format("highlight Rainbow%d guifg=%s", i, color))
 end
+
+local brackets = {"(", "[", "{"}
+
+-- make function global so autocmd can see it
+_G.rainbow_brackets = function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  vim.api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
+  for i=0, vim.api.nvim_buf_line_count(bufnr)-1 do
+    local line = vim.api.nvim_buf_get_lines(bufnr, i, i+1, false)[1]
+    if line then
+      local color_idx = 1
+      for j=1,#line do
+        local char = line:sub(j,j)
+        for _, b in ipairs(brackets) do
+          if char == b then
+            local group = "Rainbow"..color_idx
+            vim.api.nvim_buf_add_highlight(bufnr, -1, group, i, j-1, j)
+            color_idx = color_idx % #colors + 1
+          end
+        end
+      end
+    end
+  end
+end
+
+-- autocmd to update rainbow brackets
+vim.cmd [[
+  augroup RainbowBrackets
+    autocmd!
+    autocmd BufEnter,BufWinEnter,TextChanged,TextChangedI * lua rainbow_brackets()
+  augroup END
+]]
 
 -- ===============================
 --  Simple color scheme
