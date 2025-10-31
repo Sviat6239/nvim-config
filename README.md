@@ -60,8 +60,9 @@ Place the `init.lua` into your Neovim config directory:
 ```
 Then launch Neovim — everything will work out of the box.
 ## Notes
-- LSP servers need to be installed on your system for their respective languages.
+- LSP servers must be installed on your system for their respective languages.
 - Rainbow brackets and auto-pairs work automatically while typing.
 - TODO/FIXME/NOTE comments are highlighted for easy tracking.
-- Current function/class is shown in the statusline dynamically.
+- The current function/class is displayed dynamically in the statusline.
+- Column rulers visually indicate code length limits.
 - Autoformatting ensures consistent code style on every save.
