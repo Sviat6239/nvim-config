@@ -1,5 +1,5 @@
 -- ===============================
---  Minimal Neovim Config (no keymaps)
+--  Minimal Neovim Config 
 -- ===============================
 
 -- Basic options
